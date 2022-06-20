@@ -1,0 +1,1 @@
+export { MediaQueriedFlex } from "./MediaQueriedFlex";

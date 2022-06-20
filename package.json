@@ -1,0 +1,7 @@
+{
+  "name": "columns",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Maksim Andreev <ma.andreev@corp.vk.com>",
+  "license": "MIT"
+}

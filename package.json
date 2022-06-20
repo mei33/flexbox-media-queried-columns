@@ -4,9 +4,22 @@
   "main": "index.js",
   "author": "Maksim Andreev <ma.andreev@corp.vk.com>",
   "license": "MIT",
+  "scripts": {
+    "rollup": "rollup -c"
+  },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-typescript": "^8.3.3",
     "@types/react": "^18.0.14",
     "react": "^18.2.0",
+    "rollup": "^2.75.7",
+    "rollup-plugin-dts": "^4.2.2",
     "typescript": "^4.7.4"
-  }
+  },
+  "module": "dist/esm/index.js",
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts"
 }

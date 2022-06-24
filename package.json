@@ -29,7 +29,8 @@
   ],
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@stitches/react": "^1.2.8"
+    "@stitches/react": "^1.2.8",
+    "react-jss": "^10.9.0"
   },
   "jest": {
     "transform": {

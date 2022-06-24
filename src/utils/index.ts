@@ -1,0 +1,1 @@
+export { getMediaQueriedColumnsCssFunc } from "./getMediaQueriedColumnsCssFunc";

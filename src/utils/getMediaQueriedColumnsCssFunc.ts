@@ -1,15 +1,16 @@
 type BreakpointInPx = number;
 type ColumnsQuantity = number;
+type GapBetweenColumnsInPx = number;
+
+export type MediaQueriesDict = Record<BreakpointInPx, ColumnsQuantity>;
+
 type InitialWidthInPercent = string;
-
-interface MediaQueriesDict {
-  [breakpointInPx: BreakpointInPx]: ColumnsQuantity;
-}
-
 type MediaQuery = [BreakpointInPx, ColumnsQuantity];
 
-const getColumnWidth = (columnsQuantity: ColumnsQuantity) =>
-  `100%/(${columnsQuantity} + 1) + 0.1%`;
+const getColumnWidth = (
+  columnsQuantity: ColumnsQuantity,
+  gap: GapBetweenColumnsInPx
+) => `100%/${columnsQuantity} - ${gap}px`;
 
 const getPivotByBreakpoint = (breakpointWidth: BreakpointInPx) =>
   `(${breakpointWidth}px - 100vw) * 1000`;
@@ -20,21 +21,36 @@ const buildClampFunc = (
   maximum: string
 ) => `clamp(${minimum}, ${prefferable}, ${maximum})`;
 
-const getClampByOneBreakpoint = (
-  width: BreakpointInPx,
-  cols: ColumnsQuantity,
-  initialWidth: InitialWidthInPercent
-) =>
+interface GetClampByOneBreakpointParams {
+  width: BreakpointInPx;
+  cols: ColumnsQuantity;
+  gap: GapBetweenColumnsInPx;
+  initialWidth: InitialWidthInPercent;
+}
+
+const getClampByOneBreakpoint = ({
+  width,
+  cols,
+  gap,
+  initialWidth,
+}: GetClampByOneBreakpointParams) =>
   buildClampFunc(
-    getColumnWidth(cols),
+    getColumnWidth(cols, gap),
     getPivotByBreakpoint(width),
     initialWidth
   );
 
-const getClampByTwoBreakpoints = (
-  breakpoints: [MediaQuery, MediaQuery],
-  initialWidth: InitialWidthInPercent
-) => {
+interface GetClampByTwoBreakpoints {
+  breakpoints: [MediaQuery, MediaQuery];
+  initialWidth: InitialWidthInPercent;
+  gap: GapBetweenColumnsInPx;
+}
+
+const getClampByTwoBreakpoints = ({
+  breakpoints,
+  initialWidth,
+  gap,
+}: GetClampByTwoBreakpoints) => {
   const breakpointNarrow = breakpoints[0];
   const breakpointWide = breakpoints[1];
 
@@ -42,20 +58,28 @@ const getClampByTwoBreakpoints = (
   const [widthWide, columnsWide] = breakpointWide;
 
   return buildClampFunc(
-    getClampByOneBreakpoint(
-      widthWide,
-      columnsWide,
-      getColumnWidth(columnsNarrow)
-    ),
+    getClampByOneBreakpoint({
+      width: widthWide,
+      cols: columnsWide,
+      initialWidth: getColumnWidth(columnsNarrow, gap),
+      gap,
+    }),
     getPivotByBreakpoint(widthNarrow),
     initialWidth
   );
 };
 
-export const getNestedRule = (
-  breakpoints: MediaQuery[],
-  initialWidth: InitialWidthInPercent
-): string => {
+interface GetNestedRuleParams {
+  breakpoints: MediaQuery[];
+  initialWidth: InitialWidthInPercent;
+  gap: GapBetweenColumnsInPx;
+}
+
+export const getNestedRule = ({
+  breakpoints,
+  initialWidth,
+  gap,
+}: GetNestedRuleParams): string => {
   switch (breakpoints.length) {
     case 0: {
       return initialWidth;
@@ -65,14 +89,20 @@ export const getNestedRule = (
       const breakpoint = breakpoints[0];
       const [width, columns] = breakpoint;
 
-      return getClampByOneBreakpoint(width, columns, initialWidth);
+      return getClampByOneBreakpoint({
+        width,
+        cols: columns,
+        initialWidth,
+        gap,
+      });
     }
 
     case 2: {
-      return getClampByTwoBreakpoints(
-        [breakpoints[0], breakpoints[1]],
-        initialWidth
-      );
+      return getClampByTwoBreakpoints({
+        breakpoints: [breakpoints[0], breakpoints[1]],
+        gap,
+        initialWidth,
+      });
     }
 
     default: {
@@ -80,7 +110,11 @@ export const getNestedRule = (
       const [width, columns] = breakpointNarrowest;
 
       return buildClampFunc(
-        getNestedRule(breakpoints.slice(1), getColumnWidth(columns)),
+        getNestedRule({
+          breakpoints: breakpoints.slice(1),
+          gap,
+          initialWidth: getColumnWidth(columns, gap),
+        }),
         getPivotByBreakpoint(width),
         initialWidth
       );
@@ -88,13 +122,24 @@ export const getNestedRule = (
   }
 };
 
-export const getMediaQueriedColumnsCssFunc = (
-  mediaQueries: MediaQueriesDict,
-  initialWidth: InitialWidthInPercent = "100%"
-) => {
+interface GetMediaQueriedColumnsCssFuncParams {
+  mediaQueries: MediaQueriesDict;
+  gap?: GapBetweenColumnsInPx;
+  initialWidth?: InitialWidthInPercent;
+}
+
+export const getMediaQueriedColumnsCssFunc = ({
+  mediaQueries,
+  gap = 0,
+  initialWidth = "100%",
+}: GetMediaQueriedColumnsCssFuncParams) => {
   const sortedByBreakpointAsc: MediaQuery[] = Object.entries(mediaQueries)
     .sort((a, b) => Number(a[0]) - Number(b[0]))
     .map((breakpoint) => [Number(breakpoint[0]), breakpoint[1]]);
 
-  return getNestedRule(sortedByBreakpointAsc, initialWidth);
+  return getNestedRule({
+    breakpoints: sortedByBreakpointAsc,
+    gap,
+    initialWidth,
+  });
 };

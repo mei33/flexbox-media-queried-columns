@@ -1,1 +1,4 @@
-export { getMediaQueriedColumnsCssFunc } from "./getMediaQueriedColumnsCssFunc";
+export {
+  getMediaQueriedColumnsCssFunc,
+  MediaQueriesDict,
+} from "./getMediaQueriedColumnsCssFunc";

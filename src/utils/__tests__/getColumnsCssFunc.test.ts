@@ -3,20 +3,25 @@ import { minifyString } from "../minifyString";
 
 describe("getColumnsCssFunc", () => {
   it("works for empty", () => {
-    expect(getMediaQueriedColumnsCssFunc([])).toEqual("100%");
+    expect(
+      getMediaQueriedColumnsCssFunc({
+        mediaQueries: {},
+      })
+    ).toEqual("100%");
   });
 
   it("works for one", () => {
     expect(
       minifyString(
         getMediaQueriedColumnsCssFunc({
-          500: 5,
+          mediaQueries: { 500: 5 },
+          gap: 10,
         })
       )
     ).toEqual(
       minifyString(`
         clamp(
-          100%/(5 + 1) + 0.1%,
+          100%/5 - 10px,
           (500px - 100vw) * 1000,
           100%
         )
@@ -28,17 +33,20 @@ describe("getColumnsCssFunc", () => {
     expect(
       minifyString(
         getMediaQueriedColumnsCssFunc({
-          500: 5,
-          600: 6,
+          mediaQueries: {
+            500: 5,
+            600: 6,
+          },
+          gap: 20,
         })
       )
     ).toEqual(
       minifyString(`
         clamp(
           clamp(
-            100%/(6 + 1) + 0.1%,
+            100%/6 - 20px,
             (600px - 100vw) * 1000,
-            100%/(5 + 1) + 0.1%
+            100%/5 - 20px
           ),
           (500px - 100vw) * 1000,
           100%
@@ -51,9 +59,12 @@ describe("getColumnsCssFunc", () => {
     expect(
       minifyString(
         getMediaQueriedColumnsCssFunc({
-          500: 5,
-          600: 6,
-          700: 7,
+          mediaQueries: {
+            500: 5,
+            600: 6,
+            700: 7,
+          },
+          gap: 0,
         })
       )
     ).toEqual(
@@ -61,12 +72,12 @@ describe("getColumnsCssFunc", () => {
         clamp(
           clamp(
             clamp(
-              100%/(7 + 1) + 0.1%,
+              100%/7 - 0px,
               (700px - 100vw) * 1000,
-              100%/(6 + 1) + 0.1%
+              100%/6 - 0px
             ),
             (600px - 100vw) * 1000,
-            100%/(5 + 1) + 0.1%
+            100%/5 - 0px
           ),
           (500px - 100vw) * 1000,
           100%
@@ -79,10 +90,13 @@ describe("getColumnsCssFunc", () => {
     expect(
       minifyString(
         getMediaQueriedColumnsCssFunc({
-          400: 4,
-          500: 5,
-          600: 6,
-          700: 7,
+          mediaQueries: {
+            400: 4,
+            500: 5,
+            600: 6,
+            700: 7,
+          },
+          gap: 15,
         })
       )
     ).toEqual(
@@ -91,15 +105,15 @@ describe("getColumnsCssFunc", () => {
           clamp(
             clamp(
               clamp(
-                100%/(7 + 1) + 0.1%,
+                100%/7 - 15px,
                 (700px - 100vw) * 1000,
-                100%/(6 + 1) + 0.1%
+                100%/6 - 15px
               ),
               (600px - 100vw) * 1000,
-              100%/(5 + 1) + 0.1%
+              100%/5 - 15px
             ),
             (500px - 100vw) * 1000,
-            100%/(4 + 1) + 0.1%
+            100%/4 - 15px
           ),
           (400px - 100vw) * 1000,
           100%

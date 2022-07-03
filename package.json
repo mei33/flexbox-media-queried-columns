@@ -1,6 +1,6 @@
 {
   "name": "@mei33/flexbox-media-queried-columns",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "author": "Maksim Andreev <mei33.post@gmail.com>",
   "license": "MIT",
